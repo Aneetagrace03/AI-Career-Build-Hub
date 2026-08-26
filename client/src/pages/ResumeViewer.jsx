@@ -8,10 +8,14 @@ function ResumeViewer() {
   const [resume, setResume] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(localStorage.getItem("user") || "null");
 
   useEffect(() => {
-    fetchResume();
+    if (user?.id) {
+      fetchResume();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   const fetchResume = async () => {
@@ -19,7 +23,7 @@ function ResumeViewer() {
       const response = await getResume(user.id);
       setResume(response.data.resume);
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching resume:", error);
     } finally {
       setLoading(false);
     }
@@ -33,6 +37,10 @@ function ResumeViewer() {
     );
   }
 
+  const resumeUrl = resume
+    ? `${import.meta.env.VITE_API_URL}/${resume.filePath}`
+    : "";
+
   return (
     <div className="min-h-screen bg-gray-100 p-8">
 
@@ -43,40 +51,40 @@ function ResumeViewer() {
         </h1>
 
         {resume ? (
-          <>
-            <div className="border rounded-xl p-6 bg-gray-50">
+          <div className="border rounded-xl p-6 bg-gray-50">
 
-              <h2 className="text-xl font-semibold">
-                {resume.fileName}
-              </h2>
+            <h2 className="text-xl font-semibold">
+              {resume.fileName}
+            </h2>
 
-              <p className="text-gray-500 mt-2">
-                Uploaded Successfully
-              </p>
+            <p className="text-gray-500 mt-2">
+              Uploaded Successfully
+            </p>
 
-              <div className="mt-6 flex gap-4">
+            <div className="mt-6 flex gap-4">
 
-                <a
-                  href={`http://localhost:5000/${resume.filePath}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700"
-                >
-                  👁 View Resume
-                </a>
+              {/* View Resume */}
+              <a
+                href={resumeUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700"
+              >
+                👁 View Resume
+              </a>
 
-                <a
-                  href={`http://localhost:5000/${resume.filePath}`}
-                  download
-                  className="bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700"
-                >
-                  📥 Download
-                </a>
-
-              </div>
+              {/* Download Resume */}
+              <a
+                href={resumeUrl}
+                download
+                className="bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700"
+              >
+                📥 Download
+              </a>
 
             </div>
-          </>
+
+          </div>
         ) : (
           <>
             <p className="text-xl text-gray-500">

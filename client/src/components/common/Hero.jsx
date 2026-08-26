@@ -1,4 +1,14 @@
+import { useNavigate } from "react-router-dom";
+
 function Hero() {
+  const navigate = useNavigate();
+
+  const handleLearnMore = () => {
+    document.getElementById("features")?.scrollIntoView({
+      behavior: "smooth",
+    });
+  };
+
   return (
     <section className="bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 text-white min-h-[90vh] flex items-center">
       <div className="max-w-7xl mx-auto px-8 grid md:grid-cols-2 gap-12 items-center">
@@ -16,20 +26,28 @@ function Hero() {
           </h1>
 
           <p className="text-lg text-gray-200 mb-8 leading-8">
-            Analyze your resume, prepare for interviews,
-            learn the right skills, track job applications,
-            and receive personalized career guidance —
-            all in one platform.
+            Analyze your resume, prepare for interviews, learn the right
+            skills, track job applications, and receive personalized career
+            guidance — all in one platform.
           </p>
 
+          {/* Buttons */}
           <div className="flex gap-5">
-            <button className="bg-white text-blue-700 px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition">
+
+            <button
+              onClick={() => navigate("/register")}
+              className="bg-white text-blue-700 px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition"
+            >
               Get Started
             </button>
 
-            <button className="border border-white px-8 py-4 rounded-xl hover:bg-white hover:text-blue-700 transition">
+            <button
+              onClick={handleLearnMore}
+              className="border border-white px-8 py-4 rounded-xl hover:bg-white hover:text-blue-700 transition"
+            >
               Learn More
             </button>
+
           </div>
         </div>
 
@@ -60,7 +78,6 @@ function Hero() {
               </div>
 
             </div>
-
           </div>
         </div>
 

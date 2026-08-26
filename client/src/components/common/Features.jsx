@@ -39,7 +39,7 @@ function Features() {
   ];
 
   return (
-    <section className="bg-gray-100 py-24">
+   <section id="features" className="bg-gray-100 py-24">
       <div className="max-w-7xl mx-auto px-8">
 
         <h2 className="text-5xl font-bold text-center mb-4">

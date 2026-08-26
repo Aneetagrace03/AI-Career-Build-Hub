@@ -4,6 +4,7 @@ import MainLayout from "../components/layout/MainLayout";
 import {
   getPlacements,
   addPlacement,
+  updatePlacement,
   deletePlacement,
 } from "../api/placementApi";
 
@@ -27,6 +28,14 @@ function PlacementTracker() {
   const [adding, setAdding] = useState(false);
 
   const [error, setError] = useState("");
+
+  const statuses = [
+    "Applied",
+    "Online Test",
+    "Interview",
+    "Selected",
+    "Rejected",
+  ];
 
   // ==========================================
   // LOAD PLACEMENTS
@@ -62,7 +71,7 @@ function PlacementTracker() {
   }, []);
 
   // ==========================================
-  // HANDLE INPUT
+  // HANDLE FORM CHANGE
   // ==========================================
 
   const handleChange = (e) => {
@@ -114,6 +123,46 @@ function PlacementTracker() {
   };
 
   // ==========================================
+  // UPDATE STATUS
+  // ==========================================
+
+  const handleStatusChange = async (
+    id,
+    status
+  ) => {
+    try {
+      setError("");
+
+      const response = await updatePlacement(
+        id,
+        { status }
+      );
+
+      const updatedPlacement =
+        response.data.placement;
+
+      setPlacements((previous) =>
+        previous.map((item) =>
+          item._id === id
+            ? updatedPlacement
+            : item
+        )
+      );
+
+    } catch (error) {
+      console.error(
+        "Update Status Error:",
+        error
+      );
+
+      setError(
+        error.response?.data?.message ||
+          "Failed to update placement status."
+      );
+    }
+  };
+
+  // ==========================================
   // DELETE PLACEMENT
   // ==========================================
 
@@ -151,7 +200,7 @@ function PlacementTracker() {
   };
 
   // ==========================================
-  // FILTER PLACEMENTS
+  // FILTER
   // ==========================================
 
   const filteredPlacements = useMemo(() => {
@@ -192,24 +241,30 @@ function PlacementTracker() {
   const totalPlacements =
     placements.length;
 
-  const selectedPlacements =
+  const appliedCount =
     placements.filter(
-      (item) =>
-        item.status === "Selected" ||
-        item.status === "Offer"
+      (item) => item.status === "Applied"
     ).length;
 
-  const interviewPlacements =
+  const onlineTestCount =
     placements.filter(
       (item) =>
-        item.status === "Interview"
+        item.status === "Online Test"
     ).length;
 
-  const pendingPlacements =
+  const interviewCount =
     placements.filter(
-      (item) =>
-        item.status === "Applied" ||
-        item.status === "Pending"
+      (item) => item.status === "Interview"
+    ).length;
+
+  const selectedCount =
+    placements.filter(
+      (item) => item.status === "Selected"
+    ).length;
+
+  const rejectedCount =
+    placements.filter(
+      (item) => item.status === "Rejected"
     ).length;
 
   // ==========================================
@@ -218,19 +273,20 @@ function PlacementTracker() {
 
   const getStatusClass = (status) => {
     switch (status) {
-      case "Selected":
-      case "Offer":
-        return "bg-green-100 text-green-700";
+      case "Applied":
+        return "bg-blue-100 text-blue-700";
+
+      case "Online Test":
+        return "bg-purple-100 text-purple-700";
 
       case "Interview":
         return "bg-yellow-100 text-yellow-700";
 
+      case "Selected":
+        return "bg-green-100 text-green-700";
+
       case "Rejected":
         return "bg-red-100 text-red-700";
-
-      case "Applied":
-      case "Pending":
-        return "bg-blue-100 text-blue-700";
 
       default:
         return "bg-gray-100 text-gray-700";
@@ -252,8 +308,8 @@ function PlacementTracker() {
           </h1>
 
           <p className="text-gray-500 mt-2">
-            Track companies, placement opportunities,
-            deadlines and your selection progress.
+            Track your placement opportunities
+            from application to selection.
           </p>
 
         </div>
@@ -272,11 +328,11 @@ function PlacementTracker() {
             STATISTICS
         ====================================== */}
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
 
-          <div className="bg-blue-600 text-white rounded-2xl p-6 shadow-lg">
-            <p className="text-sm opacity-90">
-              Total Opportunities
+          <div className="bg-blue-600 text-white rounded-xl p-5 shadow">
+            <p className="text-sm">
+              Total
             </p>
 
             <h2 className="text-3xl font-bold mt-2">
@@ -284,33 +340,53 @@ function PlacementTracker() {
             </h2>
           </div>
 
-          <div className="bg-yellow-500 text-white rounded-2xl p-6 shadow-lg">
-            <p className="text-sm opacity-90">
+          <div className="bg-indigo-600 text-white rounded-xl p-5 shadow">
+            <p className="text-sm">
+              Applied
+            </p>
+
+            <h2 className="text-3xl font-bold mt-2">
+              {appliedCount}
+            </h2>
+          </div>
+
+          <div className="bg-purple-600 text-white rounded-xl p-5 shadow">
+            <p className="text-sm">
+              Online Test
+            </p>
+
+            <h2 className="text-3xl font-bold mt-2">
+              {onlineTestCount}
+            </h2>
+          </div>
+
+          <div className="bg-yellow-500 text-white rounded-xl p-5 shadow">
+            <p className="text-sm">
               Interviews
             </p>
 
             <h2 className="text-3xl font-bold mt-2">
-              {interviewPlacements}
+              {interviewCount}
             </h2>
           </div>
 
-          <div className="bg-green-600 text-white rounded-2xl p-6 shadow-lg">
-            <p className="text-sm opacity-90">
+          <div className="bg-green-600 text-white rounded-xl p-5 shadow">
+            <p className="text-sm">
               Selected
             </p>
 
             <h2 className="text-3xl font-bold mt-2">
-              {selectedPlacements}
+              {selectedCount}
             </h2>
           </div>
 
-          <div className="bg-purple-600 text-white rounded-2xl p-6 shadow-lg">
-            <p className="text-sm opacity-90">
-              Pending
+          <div className="bg-red-500 text-white rounded-xl p-5 shadow">
+            <p className="text-sm">
+              Rejected
             </p>
 
             <h2 className="text-3xl font-bold mt-2">
-              {pendingPlacements}
+              {rejectedCount}
             </h2>
           </div>
 
@@ -320,7 +396,7 @@ function PlacementTracker() {
             ADD PLACEMENT
         ====================================== */}
 
-        <div className="bg-white shadow-lg rounded-2xl p-8 mb-10">
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-10">
 
           <h2 className="text-2xl font-bold mb-6">
             ➕ Add Placement Opportunity
@@ -331,10 +407,7 @@ function PlacementTracker() {
             className="grid grid-cols-1 md:grid-cols-2 gap-5"
           >
 
-            {/* COMPANY */}
-
             <div>
-
               <label className="block font-semibold mb-2">
                 Company *
               </label>
@@ -342,19 +415,15 @@ function PlacementTracker() {
               <input
                 type="text"
                 name="company"
-                placeholder="e.g. Microsoft"
+                placeholder="Company Name"
                 value={formData.company}
                 onChange={handleChange}
-                className="w-full border rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border rounded-xl p-3"
                 required
               />
-
             </div>
 
-            {/* ROLE */}
-
             <div>
-
               <label className="block font-semibold mb-2">
                 Job Role *
               </label>
@@ -362,19 +431,15 @@ function PlacementTracker() {
               <input
                 type="text"
                 name="role"
-                placeholder="e.g. Software Engineer"
+                placeholder="Software Engineer"
                 value={formData.role}
                 onChange={handleChange}
-                className="w-full border rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border rounded-xl p-3"
                 required
               />
-
             </div>
 
-            {/* PACKAGE */}
-
             <div>
-
               <label className="block font-semibold mb-2">
                 Package *
               </label>
@@ -382,19 +447,15 @@ function PlacementTracker() {
               <input
                 type="text"
                 name="package"
-                placeholder="e.g. 12 LPA"
+                placeholder="12 LPA"
                 value={formData.package}
                 onChange={handleChange}
-                className="w-full border rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border rounded-xl p-3"
                 required
               />
-
             </div>
 
-            {/* LOCATION */}
-
             <div>
-
               <label className="block font-semibold mb-2">
                 Location *
               </label>
@@ -402,21 +463,17 @@ function PlacementTracker() {
               <input
                 type="text"
                 name="location"
-                placeholder="e.g. Bangalore"
+                placeholder="Bangalore"
                 value={formData.location}
                 onChange={handleChange}
-                className="w-full border rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border rounded-xl p-3"
                 required
               />
-
             </div>
 
-            {/* DEADLINE */}
-
             <div>
-
               <label className="block font-semibold mb-2">
-                Application Deadline *
+                Deadline *
               </label>
 
               <input
@@ -427,13 +484,9 @@ function PlacementTracker() {
                 className="w-full border rounded-xl p-3"
                 required
               />
-
             </div>
 
-            {/* ELIGIBILITY */}
-
             <div>
-
               <label className="block font-semibold mb-2">
                 Eligibility
               </label>
@@ -441,23 +494,20 @@ function PlacementTracker() {
               <input
                 type="text"
                 name="eligibility"
-                placeholder="e.g. B.Tech CSE, 2028 batch"
+                placeholder="B.Tech CSE, 2028 batch"
                 value={formData.eligibility}
                 onChange={handleChange}
                 className="w-full border rounded-xl p-3"
               />
-
             </div>
-
-            {/* BUTTON */}
 
             <button
               type="submit"
               disabled={adding}
-              className="md:col-span-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-xl font-semibold"
+              className="md:col-span-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white py-3 rounded-xl font-semibold"
             >
               {adding
-                ? "Adding Placement..."
+                ? "Adding..."
                 : "➕ Add Placement"}
             </button>
 
@@ -469,14 +519,14 @@ function PlacementTracker() {
             PLACEMENT LIST
         ====================================== */}
 
-        <div className="bg-white shadow-lg rounded-2xl p-8">
+        <div className="bg-white rounded-2xl shadow-lg p-8">
 
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-6">
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
 
             <div>
 
               <h2 className="text-2xl font-bold">
-                🏢 Placement Opportunities
+                🏢 My Placement Opportunities
               </h2>
 
               <p className="text-gray-500 mt-1">
@@ -487,8 +537,6 @@ function PlacementTracker() {
               </p>
 
             </div>
-
-            {/* SEARCH + FILTER */}
 
             <div className="flex flex-col sm:flex-row gap-3">
 
@@ -516,25 +564,14 @@ function PlacementTracker() {
                   All Status
                 </option>
 
-                <option value="Applied">
-                  Applied
-                </option>
-
-                <option value="Interview">
-                  Interview
-                </option>
-
-                <option value="Offer">
-                  Offer
-                </option>
-
-                <option value="Selected">
-                  Selected
-                </option>
-
-                <option value="Rejected">
-                  Rejected
-                </option>
+                {statuses.map((status) => (
+                  <option
+                    key={status}
+                    value={status}
+                  >
+                    {status}
+                  </option>
+                ))}
 
               </select>
 
@@ -573,8 +610,8 @@ function PlacementTracker() {
               </h3>
 
               <p className="text-gray-500 mt-2">
-                Add a placement opportunity or
-                change your search filter.
+                Add a placement opportunity
+                to get started.
               </p>
 
             </div>
@@ -593,11 +630,9 @@ function PlacementTracker() {
 
                     <div className="flex flex-col lg:flex-row lg:justify-between gap-6">
 
-                      {/* DETAILS */}
-
                       <div className="flex-1">
 
-                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                        <div className="flex flex-col sm:flex-row sm:justify-between gap-3">
 
                           <div>
 
@@ -612,54 +647,89 @@ function PlacementTracker() {
                           </div>
 
                           <span
-                            className={`inline-flex w-fit px-3 py-1 rounded-full text-sm font-semibold ${getStatusClass(
+                            className={`h-fit w-fit px-3 py-1 rounded-full text-sm font-semibold ${getStatusClass(
                               item.status
                             )}`}
                           >
-                            {item.status ||
-                              "Pending"}
+                            {item.status}
                           </span>
 
                         </div>
 
-                        <div className="mt-4 grid sm:grid-cols-2 gap-3 text-gray-600">
+                        <div className="grid sm:grid-cols-2 gap-3 mt-5 text-gray-600">
 
                           <p>
                             💰{" "}
-                            <span className="font-semibold">
+                            <strong>
                               Package:
-                            </span>{" "}
+                            </strong>{" "}
                             {item.package}
                           </p>
 
                           <p>
                             📍{" "}
-                            <span className="font-semibold">
+                            <strong>
                               Location:
-                            </span>{" "}
+                            </strong>{" "}
                             {item.location}
                           </p>
 
                           <p>
                             📅{" "}
-                            <span className="font-semibold">
+                            <strong>
                               Deadline:
-                            </span>{" "}
+                            </strong>{" "}
                             {item.deadline
                               ? new Date(
                                   item.deadline
                                 ).toLocaleDateString()
-                              : "Not specified"}
+                              : "N/A"}
                           </p>
 
                           <p>
                             🎓{" "}
-                            <span className="font-semibold">
+                            <strong>
                               Eligibility:
-                            </span>{" "}
+                            </strong>{" "}
                             {item.eligibility ||
                               "Not specified"}
                           </p>
+
+                        </div>
+
+                        {/* STATUS UPDATE */}
+
+                        <div className="mt-6 flex flex-col sm:flex-row sm:items-center gap-3">
+
+                          <label className="font-semibold">
+                            Update Status:
+                          </label>
+
+                          <select
+                            value={
+                              item.status
+                            }
+                            onChange={(e) =>
+                              handleStatusChange(
+                                item._id,
+                                e.target.value
+                              )
+                            }
+                            className="border rounded-lg px-4 py-2 w-fit"
+                          >
+
+                            {statuses.map(
+                              (status) => (
+                                <option
+                                  key={status}
+                                  value={status}
+                                >
+                                  {status}
+                                </option>
+                              )
+                            )}
+
+                          </select>
 
                         </div>
 
@@ -667,7 +737,7 @@ function PlacementTracker() {
 
                       {/* DELETE */}
 
-                      <div className="flex items-start">
+                      <div>
 
                         <button
                           onClick={() =>

@@ -5,13 +5,18 @@ function ResumeUpload() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(localStorage.getItem("user") || "null");
 
   const handleUpload = async (e) => {
     e.preventDefault();
 
     if (!file) {
       alert("Please select a PDF file.");
+      return;
+    }
+
+    if (!user?.id) {
+      alert("Please login before uploading your resume.");
       return;
     }
 
@@ -24,7 +29,7 @@ function ResumeUpload() {
       setLoading(true);
 
       const response = await axios.post(
-        "http://localhost:5000/api/resume/upload",
+        `${import.meta.env.VITE_API_URL}/api/resume/upload`,
         formData,
         {
           headers: {
@@ -36,7 +41,7 @@ function ResumeUpload() {
       alert(response.data.message);
 
     } catch (error) {
-      console.error(error);
+      console.error("Resume Upload Error:", error);
 
       alert(
         error.response?.data?.message ||
@@ -68,7 +73,7 @@ function ResumeUpload() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"
+            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
           >
             {loading ? "Uploading..." : "Upload Resume"}
           </button>

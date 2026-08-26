@@ -1,20 +1,15 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api/roadmap",
+  baseURL: `${import.meta.env.VITE_API_URL}/api/roadmap`,
 });
 
-// ===============================
-// Get Token
-// ===============================
 const getToken = () => {
   return localStorage.getItem("token");
 };
 
-// ===============================
-// Generate Learning Roadmap
-// ===============================
-export const generateRoadmap = async (career, level) => {
+// Generate roadmap
+export const generateRoadmap = (career, level) => {
   return API.post(
     "/generate",
     {
@@ -24,15 +19,14 @@ export const generateRoadmap = async (career, level) => {
     {
       headers: {
         Authorization: `Bearer ${getToken()}`,
+        "Content-Type": "application/json",
       },
     }
   );
 };
 
-// ===============================
-// Get Roadmap History
-// ===============================
-export const getRoadmapHistory = async () => {
+// Get roadmap history
+export const getRoadmapHistory = () => {
   return API.get("/history", {
     headers: {
       Authorization: `Bearer ${getToken()}`,
@@ -40,10 +34,8 @@ export const getRoadmapHistory = async () => {
   });
 };
 
-// ===============================
-// Delete Roadmap
-// ===============================
-export const deleteRoadmap = async (id) => {
+// Delete roadmap
+export const deleteRoadmap = (id) => {
   return API.delete(`/${id}`, {
     headers: {
       Authorization: `Bearer ${getToken()}`,

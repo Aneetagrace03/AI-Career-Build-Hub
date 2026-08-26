@@ -1,23 +1,49 @@
 import axios from "axios";
 
-// Create Axios instance
 const API = axios.create({
-  baseURL: "http://localhost:5000/api",
-  timeout: 10000,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  baseURL: `${import.meta.env.VITE_API_URL}/api/auth`,
 });
 
-// Register User
-export const registerUser = async (userData) => {
-  return await API.post("/auth/register", userData);
+// ==========================================
+// Register
+// ==========================================
+
+export const registerUser = (data) => {
+  return API.post("/register", data);
 };
 
-// Login User
-export const loginUser = async (userData) => {
-  return await API.post("/auth/login", userData);
+// ==========================================
+// Login
+// ==========================================
+
+export const loginUser = (data) => {
+  return API.post("/login", data);
 };
 
-// Export API instance (for future authenticated requests)
+// ==========================================
+// Forgot Password
+// ==========================================
+
+export const forgotPassword = (email) => {
+  return API.post("/forgot-password", {
+    email,
+  });
+};
+
+// ==========================================
+// Reset Password
+// ==========================================
+
+export const resetPassword = (
+  token,
+  password
+) => {
+  return API.post(
+    `/reset-password/${token}`,
+    {
+      password,
+    }
+  );
+};
+
 export default API;
